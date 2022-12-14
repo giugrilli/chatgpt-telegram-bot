@@ -2,7 +2,7 @@ import { ChatGPTAPI, ChatGPTConversation, getOpenAIAuth } from 'chatgpt';
 import { env } from './utils/env';
 
 // store conversation
-const memory = new Map<string, ChatGPTConversation>();
+export const memory = new Map<string, ChatGPTConversation|null>();
 
 let api:any
 
