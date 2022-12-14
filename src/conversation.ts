@@ -41,6 +41,12 @@ export const resetLogin = async (id:string) => {
   memory.set(id, null);
 }
 
+export const isLogged = async (id:string) => {
+  let conversation = memory.get(id)
+  return !!conversation
+}
+
+
 /**
  * create a new conversation
  */

@@ -1,7 +1,7 @@
 import { UNLOCK_THOUGHT_CONTROL } from './constants/command';
 import { Markup, Telegraf } from 'telegraf';
 import { env } from './utils/env';
-import { create, resetLogin, send } from './conversation';
+import { create, resetLogin, send, isLogged } from './conversation';
 import { editMessage } from './bot';
 import { UNLOCK_THOUGHT_CONTROL_MESSAGE } from './constants/message';
 
@@ -73,7 +73,12 @@ bot.on('text', async (ctx) => {
 
         const gif = await getRandomGif.json();
         const animationmessage = await ctx.sendAnimation(gif.data?.images?.original_mp4?.mp4)
-        const message = await ctx.sendMessage('thinking...');
+        const message = await ctx.sendMessage('Thinking...');
+        const isGptLogged = await isLogged(id.toString())
+        let loginMessage
+        if (!isGptLogged) {
+          loginMessage = await ctx.sendMessage('Login in progress... This will take time...');
+        }
 
         // Send the message to chatGPT
         const response = await send(id, text, 
@@ -90,6 +95,7 @@ bot.on('text', async (ctx) => {
         await Promise.all([
           ctx.telegram.deleteMessage(message.chat.id, message.message_id),
           ctx.telegram.deleteMessage(animationmessage.chat.id, animationmessage.message_id),
+          loginMessage && ctx.telegram.deleteMessage(loginMessage.chat.id, loginMessage.message_id),
           ctx.reply(response, removeKeyboard),
         ]);
       } catch (e: any) {
