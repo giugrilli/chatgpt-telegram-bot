@@ -43,11 +43,18 @@ bot.on('text', async (ctx) => {
   const text = ctx.message?.text.trim();
   const id = ctx.from?.id;
 
+  console.log('message-from', ctx.from);
+  console.log('message-content -> ', text);
+
   if (!allowed_ids.includes(id.toString())){
     await ctx.reply('❌ Not Allowed ❌')
     return 
   }
   
+  const getRandomGif = await fetch(
+    "http://api.giphy.com/v1/gifs/random?tag=thinking&api_key=Al5wJ2bX1FQPosMW1BCgTNlho1j37MB8"
+  );  
+
   // Create a keyboard that removes the previous keyboard
   const removeKeyboard = Markup.removeKeyboard();
 
@@ -63,20 +70,26 @@ bot.on('text', async (ctx) => {
       // Send a typing indicator to the user
       await ctx.sendChatAction('typing');
       try {
+
+        const gif = await getRandomGif.json();
+        const animationmessage = await ctx.sendAnimation(gif.data?.images?.original_mp4?.mp4)
         const message = await ctx.sendMessage('thinking...');
+
         // Send the message to chatGPT
-        const response = await send(id, text, (contents) => contents
-          // editMessage(
-          //   ctx,
-          //   message.chat.id,
-          //   message.message_id,
-          //   contents || 'typing...',
-          // ),
+        const response = await send(id, text, 
+          // (contents) => 
+          //   editMessage(
+          //     ctx,
+          //     message.chat.id,
+          //     message.message_id,
+          //     contents || 'typing...',
+          //   ),
         );
 
         // delete the message and send a new one to notice the user
         await Promise.all([
           ctx.telegram.deleteMessage(message.chat.id, message.message_id),
+          ctx.telegram.deleteMessage(animationmessage.chat.id, animationmessage.message_id),
           ctx.reply(response, removeKeyboard),
         ]);
       } catch (e: any) {
