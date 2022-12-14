@@ -2,7 +2,7 @@ import { ChatGPTAPI, ChatGPTConversation, getOpenAIAuth } from 'chatgpt';
 import { env } from './utils/env';
 
 // store conversation
-export const memory = new Map<string, ChatGPTConversation|null>();
+const memory = new Map<string, ChatGPTConversation|null>();
 
 let api:any
 
@@ -36,6 +36,10 @@ export const send = async (
     },
   });
 };
+
+export const resetLogin = async (id:string) => {
+  memory.set(id, null);
+}
 
 /**
  * create a new conversation

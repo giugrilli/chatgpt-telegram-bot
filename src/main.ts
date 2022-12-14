@@ -1,7 +1,7 @@
 import { UNLOCK_THOUGHT_CONTROL } from './constants/command';
 import { Markup, Telegraf } from 'telegraf';
 import { env } from './utils/env';
-import { create, memory, send } from './conversation';
+import { create, resetLogin, send } from './conversation';
 import { editMessage } from './bot';
 import { UNLOCK_THOUGHT_CONTROL_MESSAGE } from './constants/message';
 
@@ -93,15 +93,18 @@ bot.on('text', async (ctx) => {
           ctx.reply(response, removeKeyboard),
         ]);
       } catch (e: any) {
-     
-        if (e.message.includes('403 Forbidden')){
-          memory.set(id.toString(), null);
-        }
         
         await ctx.sendMessage(
-          '❌Something went wrong. Details: ' + e.message,
+          '❌ Something went wrong. Details: ' + e.message,
           removeKeyboard,
         );
+
+        if (e.message.includes('403 Forbidden')){
+          resetLogin(id.toString())
+          await ctx.sendMessage(
+            '❗️ Just try again now ❗️'
+          );
+        }
       }
   }
 });
