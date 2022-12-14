@@ -105,11 +105,12 @@ bot.on('text', async (ctx) => {
           removeKeyboard,
         );
 
-        if (e.message.includes('403 Forbidden')){
-          resetLogin(id.toString())
-          await ctx.sendMessage(
-            '❗️ Just try again now ❗️'
-          );
+        if (e.message.includes('403 Forbidden') || 
+            e.message.includes('error 429')){
+              resetLogin(id.toString())
+              await ctx.sendMessage(
+                '❗️ Just try again now ❗️'
+              );
         }
       }
   }
