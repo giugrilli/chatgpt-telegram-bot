@@ -63,15 +63,15 @@ bot.on('text', async (ctx) => {
       // Send a typing indicator to the user
       await ctx.sendChatAction('typing');
       try {
-        const message = await ctx.sendMessage('typing..');
+        const message = await ctx.sendMessage('thinking...');
         // Send the message to chatGPT
-        const response = await send(id, text, (contents) =>
-          editMessage(
-            ctx,
-            message.chat.id,
-            message.message_id,
-            contents || 'typing...',
-          ),
+        const response = await send(id, text, (contents) => contents
+          // editMessage(
+          //   ctx,
+          //   message.chat.id,
+          //   message.message_id,
+          //   contents || 'typing...',
+          // ),
         );
 
         // delete the message and send a new one to notice the user
