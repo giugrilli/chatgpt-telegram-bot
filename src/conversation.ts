@@ -1,16 +1,18 @@
-import { ChatGPTAPI, ChatGPTConversation } from 'chatgpt';
+import { ChatGPTAPI, ChatGPTConversation, getOpenAIAuth } from 'chatgpt';
 import { env } from './utils/env';
 
 // store conversation
 const memory = new Map<string, ChatGPTConversation>();
 
-const api = new ChatGPTAPI({
-  sessionToken: env.CHATGPT_TOKEN,
-});
+let api:any
 
-const check = () => {
-  return api.ensureAuth();
-};
+const authInfo = () => {
+    return getOpenAIAuth({
+    email: env.OPENAI_EMAIL,
+    password: env.OPENAI_PASSWORD,
+    isGoogleLogin: true
+  })
+}
 
 /**
  * send message to chatGPT
@@ -40,8 +42,10 @@ export const send = async (
  */
 export const create = async (id: number | string) => {
   const sId = id.toString();
+  const authInfoData = await authInfo();
+  const api = new ChatGPTAPI({ ...authInfoData })
+  await api.ensureAuth();
   const conversation = api.getConversation();
-  await check();
   memory.set(sId, conversation);
   return conversation;
 };
