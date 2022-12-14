@@ -5,6 +5,8 @@ import { create, send } from './conversation';
 import { editMessage } from './bot';
 import { UNLOCK_THOUGHT_CONTROL_MESSAGE } from './constants/message';
 
+const allowed_ids = env.ALLOWED_IDS.split(',')
+
 // Create a new telegraf bot instance
 const bot = new Telegraf(env.TELEGRAM_BOT_TOKEN, {
   handlerTimeout: 3 * 60 * 1000,
@@ -13,6 +15,11 @@ const bot = new Telegraf(env.TELEGRAM_BOT_TOKEN, {
 // When a user starts a conversation with the bot
 bot.start(async (ctx) => {
   console.log('start', ctx.from);
+  const id = ctx.from?.id;
+
+  if (!allowed_ids.includes(id.toString())){
+    return ctx.reply('❌ Not Allowed ❌');
+  }
 
   // Create a keyboard
   const keyboard = Markup.keyboard([
@@ -36,6 +43,11 @@ bot.on('text', async (ctx) => {
   const text = ctx.message?.text.trim();
   const id = ctx.from?.id;
 
+  if (!allowed_ids.includes(id.toString())){
+    await ctx.reply('❌ Not Allowed ❌')
+    return 
+  }
+  
   // Create a keyboard that removes the previous keyboard
   const removeKeyboard = Markup.removeKeyboard();
 
