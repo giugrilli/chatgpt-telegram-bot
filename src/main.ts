@@ -55,6 +55,14 @@ bot.on('text', async (ctx) => {
     "http://api.giphy.com/v1/gifs/random?tag=thinking&api_key=Al5wJ2bX1FQPosMW1BCgTNlho1j37MB8"
   );  
 
+  const removeMessages = async (message:any, animationmessage:any, loginMessage:any) => {
+    await Promise.all([
+      message && ctx.telegram.deleteMessage(message.chat.id, message.message_id),
+      animationmessage && ctx.telegram.deleteMessage(animationmessage.chat.id, animationmessage.message_id),
+      loginMessage && ctx.telegram.deleteMessage(loginMessage.chat.id, loginMessage.message_id)
+    ]);
+  }
+
   // Create a keyboard that removes the previous keyboard
   const removeKeyboard = Markup.removeKeyboard();
 
@@ -69,17 +77,19 @@ bot.on('text', async (ctx) => {
 
       // Send a typing indicator to the user
       await ctx.sendChatAction('typing');
+      let message
+      let animationmessage
+      let loginMessage
       try {
 
         const gif = await getRandomGif.json();
-        const animationmessage = await ctx.sendAnimation(gif.data?.images?.original_mp4?.mp4)
-        const message = await ctx.sendMessage('Thinking...');
+        animationmessage = await ctx.sendAnimation(gif.data?.images?.original_mp4?.mp4)
+        message = await ctx.sendMessage('Thinking...');
+
         const isGptLogged = await isLogged(id.toString())
-        let loginMessage
         if (!isGptLogged) {
           loginMessage = await ctx.sendMessage('Login in progress... This will take time...');
         }
-
         // Send the message to chatGPT
         const response = await send(id, text, 
           // (contents) => 
@@ -90,21 +100,12 @@ bot.on('text', async (ctx) => {
           //     contents || 'typing...',
           //   ),
         );
-
         // delete the message and send a new one to notice the user
-        await Promise.all([
-          ctx.telegram.deleteMessage(message.chat.id, message.message_id),
-          ctx.telegram.deleteMessage(animationmessage.chat.id, animationmessage.message_id),
-          loginMessage && ctx.telegram.deleteMessage(loginMessage.chat.id, loginMessage.message_id),
-          ctx.reply(response, removeKeyboard),
-        ]);
-      } catch (e: any) {
-        
-        await ctx.sendMessage(
-          '❌ Something went wrong. Details: ' + e.message,
-          removeKeyboard,
-        );
-
+        await removeMessages(message, animationmessage, loginMessage)
+        await ctx.reply(response, removeKeyboard)
+      } catch (e: any) { 
+        await removeMessages(message, animationmessage, loginMessage)
+        await ctx.sendMessage('❌ Something went wrong. Details: ' + e.message, removeKeyboard)
         if (e.message.includes('403 Forbidden') || 
             e.message.includes('error 429')){
               resetLogin(id.toString())
