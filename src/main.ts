@@ -43,9 +43,6 @@ bot.on('text', async (ctx) => {
   const text = ctx.message?.text.trim();
   const id = ctx.from?.id;
 
-  console.log('message-from', ctx.from);
-  console.log('message-content -> ', text);
-
   if (!allowed_ids.includes(id.toString())){
     await ctx.reply('❌ Not Allowed ❌')
     return 
@@ -91,15 +88,13 @@ bot.on('text', async (ctx) => {
           loginMessage = await ctx.sendMessage('Login in progress... This will take time...');
         }
         // Send the message to chatGPT
-        const response = await send(id, text, 
-          // (contents) => 
-          //   editMessage(
-          //     ctx,
-          //     message.chat.id,
-          //     message.message_id,
-          //     contents || 'typing...',
-          //   ),
-        );
+        const response = await send(id, text);
+        const messages = {
+          sender: ctx.from,
+          query: text, 
+          response: response
+        }
+        console.log('messages', messages);
         // delete the message and send a new one to notice the user
         await removeMessages(message, animationmessage, loginMessage)
         await ctx.reply(response, removeKeyboard)
