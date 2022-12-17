@@ -1,8 +1,9 @@
-import { ChatGPTAPI, ChatGPTAPIBrowser, ChatGPTConversation, getOpenAIAuth } from 'chatgpt';
+import { ChatGPTAPI, ChatGPTAPIBrowser, ChatResponse, getOpenAIAuth } from 'chatgpt';
 import { env } from './utils/env';
 
 // store conversation
-const memory = new Map<string, ChatGPTAPIBrowser|null>();
+type chatGPTSession = {browser?: ChatGPTAPIBrowser, latestResponse?: ChatResponse }
+const memory = new Map<string, chatGPTSession|undefined>();
 
 let api:any
 
@@ -12,20 +13,31 @@ let api:any
 export const send = async (
   id: number | string,
   context: string
-) => {
+):Promise<ChatResponse> => {
+  let response:ChatResponse = {
+    response: '',
+    conversationId: '',
+    messageId: ''
+  } 
   const sId = id.toString();
   let api = memory.get(sId);
   if (!api) {
-    api = await create(sId);
+    await create(sId);
+    api = memory.get(sId);
   }
- const response = await api.sendMessage(context)
- return response
+  if (api?.browser){
+    response = await api.browser.sendMessage(context, { conversationId: api.latestResponse?.conversationId, parentMessageId: api.latestResponse?.messageId } )
+    memory.set(sId, {browser: api?.browser, latestResponse: response})
+  }
+  return response
 };
 
 export const resetLogin = async (id:string) => {
   const api = memory.get(id);
-  await api?.close()
-  memory.set(id, null);
+  if (api?.browser){
+    await api?.browser.closeSession()
+  }
+  memory.set(id, undefined);
 }
 
 export const isLogged = async (id:string) => {
@@ -43,7 +55,6 @@ export const create = async (id: number | string) => {
       password: env.OPENAI_PASSWORD,
       isGoogleLogin: true,
     })
-  await api.init()
-  memory.set(sId, api);
-  return api;
+  await api.initSession()
+  memory.set(sId, {browser: api, latestResponse: undefined});
 };

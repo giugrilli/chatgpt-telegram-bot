@@ -97,7 +97,7 @@ bot.on('text', async (ctx) => {
         console.log('messages', messages);
         // delete the message and send a new one to notice the user
         await removeMessages(message, animationmessage, loginMessage)
-        await ctx.reply(response, removeKeyboard)
+        await ctx.reply(response.response, removeKeyboard)
       } catch (e: any) { 
         await removeMessages(message, animationmessage, loginMessage)
         await ctx.sendMessage('❌ Something went wrong. Details: ' + e.message, removeKeyboard)
