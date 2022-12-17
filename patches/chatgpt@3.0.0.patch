@@ -1,0 +1,14 @@
+diff --git a/build/index.js b/build/index.js
+index 845a9940f347be3a385fcbaaaf20e27ae7b15e6b..2a6ba60cfba80f5325792316dbd11576c2328952 100644
+--- a/build/index.js
++++ b/build/index.js
+@@ -852,6 +852,9 @@ async function getOpenAIAuth({
+         ),
+         submitP()
+       ]);
++      await page.goto("https://chat.openai.com/chat", {
++        waitUntil: "networkidle2"
++      });
+     } else {
+       await delay(2e3);
+       await checkForChatGPTAtCapacity(page);

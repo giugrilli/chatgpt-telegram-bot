@@ -42,5 +42,10 @@
     "ml",
     "bot",
     "telegram"
-  ]
+  ],
+  "pnpm": {
+    "patchedDependencies": {
+      "chatgpt@3.0.0": "patches/chatgpt@3.0.0.patch"
+    }
+  }
 }
