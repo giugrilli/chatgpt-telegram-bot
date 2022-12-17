@@ -1,5 +1,5 @@
 diff --git a/build/index.js b/build/index.js
-index 845a9940f347be3a385fcbaaaf20e27ae7b15e6b..2a6ba60cfba80f5325792316dbd11576c2328952 100644
+index 845a9940f347be3a385fcbaaaf20e27ae7b15e6b..18c0194e80f2077b174a35a6390cbfaec38b2a57 100644
 --- a/build/index.js
 +++ b/build/index.js
 @@ -852,6 +852,9 @@ async function getOpenAIAuth({
@@ -12,3 +12,18 @@ index 845a9940f347be3a385fcbaaaf20e27ae7b15e6b..2a6ba60cfba80f5325792316dbd11576
      } else {
        await delay(2e3);
        await checkForChatGPTAtCapacity(page);
+@@ -909,7 +912,13 @@ async function getBrowser(opts = {}) {
+     "--no-first-run",
+     "--no-service-autorun",
+     "--password-store=basic",
+-    "--system-developer-mode"
++    "--system-developer-mode",
++    '--disable-setuid-sandbox',
++    '--disable-accelerated-2d-canvas',
++    '--no-zygote',
++    '--disable-gpu',
++    "--exclude-switches", 
++    "enable-automation"
+   ];
+   if (nopechaKey) {
+     const nopechaPath = path.join(

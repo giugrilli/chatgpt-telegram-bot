@@ -2,7 +2,7 @@ lockfileVersion: 5.4
 
 patchedDependencies:
   chatgpt@3.0.0:
-    hash: dhrgg5ftt6hje3m35e5ewkuaeq
+    hash: hb6mxmhptw26u3w3hpi25jxev4
     path: patches/chatgpt@3.0.0.patch
 
 specifiers:
@@ -17,7 +17,7 @@ specifiers:
   zod: ^3.20.2
 
 dependencies:
-  chatgpt: 3.0.0_dhrgg5ftt6hje3m35e5ewkuaeq_puppeteer@19.4.1
+  chatgpt: 3.0.0_hb6mxmhptw26u3w3hpi25jxev4_puppeteer@19.4.1
   dotenv: 16.0.3
   puppeteer: 19.4.1
   telegraf: 4.11.2
@@ -240,7 +240,7 @@ packages:
     resolution: {integrity: sha512-shx7oQ0Awen/BRIdkjkvz54PnEEI/EjwXDSIZp86/KKdbafHh1Df/RYGBhn4hbe2+uKC9FnT5UCEdyPz3ai9hQ==}
     dev: false
 
-  /chatgpt/3.0.0_dhrgg5ftt6hje3m35e5ewkuaeq_puppeteer@19.4.1:
+  /chatgpt/3.0.0_hb6mxmhptw26u3w3hpi25jxev4_puppeteer@19.4.1:
     resolution: {integrity: sha512-XtlIKMiJvhJj2ds6H5E96gIgHNZOPqWlt257TvmYETBdU0riq8oFckl9ms6s0hgGhrVapTv4NF5p87bNzMioyA==}
     engines: {node: '>=18'}
     peerDependencies:
