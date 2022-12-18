@@ -37,6 +37,24 @@ bot.start(async (ctx) => {
   return ctx.reply(`Hello ${ctx.from?.first_name}! Let's chat`, keyboard);
 });
 
+const checkPreviousContext = (message:any) => {
+  const previousMessage = message.reply_to_message?.text
+  let contextArray = []
+  if (previousMessage){
+    // @ts-ignore
+    const regex = /\{GPTContext:\[.*\]\}/
+    // @ts-ignore
+    const hasPreviousContext = regex.test(previousMessage)
+    if(hasPreviousContext){
+      contextArray = previousMessage.substring(
+        previousMessage.indexOf("[") + 1, 
+        previousMessage.lastIndexOf("]")
+      ).split(',')
+    }
+  }
+  return contextArray
+}
+
 // When the bot receives a text message
 bot.on('text', async (ctx) => {
   // Get the text of the message and the user's ID
@@ -47,7 +65,8 @@ bot.on('text', async (ctx) => {
     await ctx.reply('❌ Not Allowed ❌')
     return 
   }
-  
+  let contextArray = checkPreviousContext(ctx.message)
+
   const getRandomGif = await fetch(
     "http://api.giphy.com/v1/gifs/random?tag=thinking&api_key=Al5wJ2bX1FQPosMW1BCgTNlho1j37MB8"
   );  
@@ -88,7 +107,7 @@ bot.on('text', async (ctx) => {
           loginMessage = await ctx.sendMessage('Login in progress... This will take time...');
         }
         // Send the message to chatGPT
-        const response = await send(id, text);
+        const response = await send(id, text, contextArray);
         const messages = {
           sender: ctx.from,
           query: text, 
@@ -97,17 +116,12 @@ bot.on('text', async (ctx) => {
         console.log('messages', messages);
         // delete the message and send a new one to notice the user
         await removeMessages(message, animationmessage, loginMessage)
-        await ctx.reply(response.response, removeKeyboard)
+        const finalResponse = response.response+`\n\n {GPTContext:[${response.conversationId},${response.messageId}]}`
+        await ctx.reply(finalResponse, removeKeyboard)
       } catch (e: any) { 
         await removeMessages(message, animationmessage, loginMessage)
         await ctx.sendMessage('❌ Something went wrong. Details: ' + e.message, removeKeyboard)
-        if (e.message.includes('403 Forbidden') || 
-            e.message.includes('error 429')){
-              resetLogin(id.toString())
-              await ctx.sendMessage(
-                '❗️ Just try again now ❗️'
-              );
-        }
+        await ctx.sendMessage('❗️ Just try again now ❗️');
       }
   }
 });

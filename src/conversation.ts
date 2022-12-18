@@ -12,7 +12,8 @@ let api:any
  */
 export const send = async (
   id: number | string,
-  context: string
+  message: string,
+  context: Array<string>
 ):Promise<ChatResponse> => {
   let response:ChatResponse = {
     response: '',
@@ -26,7 +27,16 @@ export const send = async (
     api = memory.get(sId);
   }
   if (api?.browser){
-    response = await api.browser.sendMessage(context, { conversationId: api.latestResponse?.conversationId, parentMessageId: api.latestResponse?.messageId } )
+
+    let conversationId = api.latestResponse?.conversationId
+    let parentMessageId = api.latestResponse?.messageId
+
+    if((context.length != 0) ){
+      conversationId = context[0]
+      parentMessageId = context[1]
+    }
+
+    response = await api.browser.sendMessage(message, { conversationId: conversationId, parentMessageId: parentMessageId} )
     memory.set(sId, {browser: api?.browser, latestResponse: response})
   }
   return response
