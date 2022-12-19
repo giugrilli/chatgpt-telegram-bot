@@ -66,8 +66,8 @@ const checkPreviousContext = (message: any) => {
 
 const convertVoiceToText = async (ctx: any) => {
 
-  const speechConfig = sdk.SpeechConfig.fromSubscription(env.AZURE_SPEECH_KEY, env.AZURE_SPEECH_REGION);
-  speechConfig.speechRecognitionLanguage = "it-IT";
+  const speechConfig = sdk.SpeechConfig.fromSubscription(env.AZURE_SPEECH_KEY, env.AZURE_SPEECH_REGION)
+  const sourceConfig = sdk.AutoDetectSourceLanguageConfig.fromLanguages(['en-US', 'it-IT', 'fr-FR'])
 
   const audioUrl = await ctx.telegram.getFileLink(ctx.message.voice.file_id)
   console.log("AUDIOURL", audioUrl)
@@ -89,7 +89,7 @@ const convertVoiceToText = async (ctx: any) => {
   })
   const wavFile = fs.readFileSync(`tmp/${filename}.wav`);
   const audioConfig = sdk.AudioConfig.fromWavFileInput(wavFile);
-  const speechRecognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
+  const speechRecognizer = sdk.SpeechRecognizer.FromConfig(speechConfig, sourceConfig, audioConfig)
   const arrayText: string[] = []
   let oldArrayTextLength = 0
   let recognitionChecker: string | number | NodeJS.Timeout | undefined
