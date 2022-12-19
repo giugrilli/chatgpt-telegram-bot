@@ -60,9 +60,11 @@ export const isLogged = async (id:string) => {
  */
 export const create = async (id: number | string) => {
   const sId = id.toString();
+  const all_credentials = JSON.parse(env.OPENAI_CREDENTIALS)
+  const current_credentials = all_credentials[Math.floor(Math.random()*all_credentials.length)];
   const api = new ChatGPTAPIBrowser({
-      email: env.OPENAI_EMAIL,
-      password: env.OPENAI_PASSWORD,
+      email: current_credentials[0],
+      password: current_credentials[1],
       isGoogleLogin: true,
     })
   await api.initSession()

@@ -111,7 +111,7 @@ const convertVoiceToText = async (ctx: any) => {
           } else {
             oldArrayTextLength = arrayText.length
           }
-        }, 2000)
+        }, 4000)
       } catch (error) {
         console.log(error);
         reject()
@@ -141,6 +141,8 @@ const convertVoiceToText = async (ctx: any) => {
   try{
     ctx.telegram.deleteMessage(message.chat.id, message.message_id)
   } catch {}
+
+  finalText = finalText.replace(/\W+/g, " ")
 
   return String(finalText)
 }
@@ -229,7 +231,14 @@ const doAllTheHandling = (ctx: any) => {
         } catch (e: any) {
           await removeMessages(message, animationmessage, loginMessage)
           await ctx.sendMessage('❌ Something went wrong. Details: ' + e.message, removeKeyboard)
-          await ctx.sendMessage('❗️ Just try again now ❗️');
+          if (
+            //e.message.includes('403') || 
+          e.message.includes('error 429')){
+            resetLogin(id.toString())
+            await ctx.sendMessage(
+              '❗️ Just try again now ❗️'
+            );
+      }
         }
     }
     resolve(true)
