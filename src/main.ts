@@ -139,93 +139,101 @@ const convertVoiceToText = async (ctx: any) => {
   return String(finalText)
 }
 
+const doAllTheHandling = (ctx: any) => {
+  return new Promise(async (resolve, reject) => {
+
+    const id = ctx.from?.id;
+
+    if (!allowed_ids.includes(id.toString())) {
+      await ctx.reply('❌ Not Allowed ❌')
+      return
+    }
+  
+    let text = ''
+  
+    // @ts-ignore
+    if (ctx.message.text) {
+      // @ts-ignore
+      text = ctx.message?.text.trim();
+      // @ts-ignore
+    } else if (ctx.message.voice) {
+      text = await convertVoiceToText(ctx)
+      ctx.sendMessage(`ConvertedText: ${text}`);
+    } else {
+      return
+    }
+  
+    if (!text || text === '') {
+      return
+    }
+  
+    let contextArray = checkPreviousContext(ctx.message)
+  
+    const getRandomGif = await fetch(
+      `http://api.giphy.com/v1/gifs/random?tag=thinking&api_key=${env.GIPHY}`
+    );
+  
+    const removeMessages = async (message: any, animationmessage: any, loginMessage: any) => {
+      await Promise.all([
+        message && ctx.telegram.deleteMessage(message.chat.id, message.message_id),
+        animationmessage && ctx.telegram.deleteMessage(animationmessage.chat.id, animationmessage.message_id),
+        loginMessage && ctx.telegram.deleteMessage(loginMessage.chat.id, loginMessage.message_id)
+      ]);
+    }
+  
+    // Create a keyboard that removes the previous keyboard
+    const removeKeyboard = Markup.removeKeyboard();
+  
+    switch (text) {
+      case UNLOCK_THOUGHT_CONTROL:
+        // Reply with the UNLOCK_THOUGHT_CONTROL_MESSAGE and remove the keyboard
+        await ctx.reply(UNLOCK_THOUGHT_CONTROL_MESSAGE, removeKeyboard);
+        break;
+  
+      default:
+        // If the message is not any command, send it to chatGPT
+  
+        // Send a typing indicator to the user
+        await ctx.sendChatAction('typing');
+        let message
+        let animationmessage
+        let loginMessage
+        try {
+  
+          const gif = await getRandomGif.json();
+          animationmessage = await ctx.sendAnimation(gif.data?.images?.original_mp4?.mp4)
+          message = await ctx.sendMessage('Thinking...');
+  
+          const isGptLogged = await isLogged(id.toString())
+          if (!isGptLogged) {
+            loginMessage = await ctx.sendMessage('Login in progress... This will take time...');
+          }
+          // Send the message to chatGPT
+          const response = await send(id, text, contextArray);
+          const messages = {
+            sender: ctx.from,
+            query: text,
+            response: response
+          }
+          console.log('messages', messages);
+          // delete the message and send a new one to notice the user
+          await removeMessages(message, animationmessage, loginMessage)
+          const finalResponse = response.response + `\n\n {GPTContext:[${response.conversationId},${response.messageId}]}`
+          await ctx.reply(finalResponse, { remove_keyboard: true, reply_to_message_id: ctx.message.message_id })
+        } catch (e: any) {
+          await removeMessages(message, animationmessage, loginMessage)
+          await ctx.sendMessage('❌ Something went wrong. Details: ' + e.message, removeKeyboard)
+          await ctx.sendMessage('❗️ Just try again now ❗️');
+        }
+    }
+    resolve(true)
+
+  });
+}
+
 // When the bot receives a text message
 bot.on('message', async (ctx) => {
-  const id = ctx.from?.id;
-
-  if (!allowed_ids.includes(id.toString())) {
-    await ctx.reply('❌ Not Allowed ❌')
-    return
-  }
-
-  let text = ''
-
-  // @ts-ignore
-  if (ctx.message.text) {
-    // @ts-ignore
-    text = ctx.message?.text.trim();
-    // @ts-ignore
-  } else if (ctx.message.voice) {
-    text = await convertVoiceToText(ctx)
-    ctx.sendMessage(`ConvertedText: ${text}`);
-  } else {
-    return
-  }
-
-  if (!text || text === '') {
-    return
-  }
-
-  let contextArray = checkPreviousContext(ctx.message)
-
-  const getRandomGif = await fetch(
-    `http://api.giphy.com/v1/gifs/random?tag=thinking&api_key=${env.GIPHY}`
-  );
-
-  const removeMessages = async (message: any, animationmessage: any, loginMessage: any) => {
-    await Promise.all([
-      message && ctx.telegram.deleteMessage(message.chat.id, message.message_id),
-      animationmessage && ctx.telegram.deleteMessage(animationmessage.chat.id, animationmessage.message_id),
-      loginMessage && ctx.telegram.deleteMessage(loginMessage.chat.id, loginMessage.message_id)
-    ]);
-  }
-
-  // Create a keyboard that removes the previous keyboard
-  const removeKeyboard = Markup.removeKeyboard();
-
-  switch (text) {
-    case UNLOCK_THOUGHT_CONTROL:
-      // Reply with the UNLOCK_THOUGHT_CONTROL_MESSAGE and remove the keyboard
-      await ctx.reply(UNLOCK_THOUGHT_CONTROL_MESSAGE, removeKeyboard);
-      break;
-
-    default:
-      // If the message is not any command, send it to chatGPT
-
-      // Send a typing indicator to the user
-      await ctx.sendChatAction('typing');
-      let message
-      let animationmessage
-      let loginMessage
-      try {
-
-        const gif = await getRandomGif.json();
-        animationmessage = await ctx.sendAnimation(gif.data?.images?.original_mp4?.mp4)
-        message = await ctx.sendMessage('Thinking...');
-
-        const isGptLogged = await isLogged(id.toString())
-        if (!isGptLogged) {
-          loginMessage = await ctx.sendMessage('Login in progress... This will take time...');
-        }
-        // Send the message to chatGPT
-        const response = await send(id, text, contextArray);
-        const messages = {
-          sender: ctx.from,
-          query: text,
-          response: response
-        }
-        console.log('messages', messages);
-        // delete the message and send a new one to notice the user
-        await removeMessages(message, animationmessage, loginMessage)
-        const finalResponse = response.response + `\n\n {GPTContext:[${response.conversationId},${response.messageId}]}`
-        await ctx.reply(finalResponse, removeKeyboard)
-      } catch (e: any) {
-        await removeMessages(message, animationmessage, loginMessage)
-        await ctx.sendMessage('❌ Something went wrong. Details: ' + e.message, removeKeyboard)
-        await ctx.sendMessage('❗️ Just try again now ❗️');
-      }
-  }
-
+  doAllTheHandling(ctx)
 });
 
 bot.catch(console.error);
