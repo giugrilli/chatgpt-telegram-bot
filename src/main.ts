@@ -90,33 +90,34 @@ const convertVoiceToText = async (ctx: any) => {
   const wavFile = fs.readFileSync(`tmp/${filename}.wav`);
   const audioConfig = sdk.AudioConfig.fromWavFileInput(wavFile);
   const speechRecognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
-  const finalText = await new Promise((resolve, reject) => {
-    speechRecognizer.recognizeOnceAsync(
-      (result: any) => {
-        switch (result.reason) {
-          case sdk.ResultReason.RecognizedSpeech:
-            console.log(`RECOGNIZED: Text=${result.text}`);
-            resolve(result.text)
-            break;
-          case sdk.ResultReason.NoMatch:
-            console.log("NOMATCH: Speech could not be recognized.");
-            reject()
-            break;
-          case sdk.ResultReason.Canceled:
-            const cancellation = sdk.CancellationDetails.fromResult(result);
-            console.log(`CANCELED: Reason=${cancellation.reason}`);
-            if (cancellation.reason == sdk.CancellationReason.Error) {
-              console.log(`CANCELED: ErrorCode=${cancellation.ErrorCode}`);
-              console.log(`CANCELED: ErrorDetails=${cancellation.errorDetails}`);
-              console.log("CANCELED: Did you set the speech resource key and region values?");
-            }
-            reject()
-            break;
-        }
-        speechRecognizer.close();
-      })
+  const arrayText: string[] = []
+  let oldArrayTextLength = 0
+  let recognitionChecker: string | number | NodeJS.Timeout | undefined
+  let finalText = ''
+  await new Promise((resolve, reject) => {
+    speechRecognizer.startContinuousRecognitionAsync()
+    speechRecognizer.recognized = (reco, e) => {
+      try {
+        const res = e.result;
+        console.log(`recognized: ${res.text}`);
+        arrayText.push(res.text)
+        clearInterval(recognitionChecker)
+        recognitionChecker = setInterval(()=>{
+          if (arrayText.length == oldArrayTextLength){
+            speechRecognizer.stopContinuousRecognitionAsync()
+            resolve(res.text)
+          } else {
+            oldArrayTextLength = arrayText.length
+          }
+        }, 2000)
+      } catch (error) {
+        console.log(error);
+        reject()
+      }
+    };
   })
 
+  finalText = arrayText.join(' ')
 
   fs.unlink(`tmp/${filename}.oga`, function (err) {
     if (err) {
