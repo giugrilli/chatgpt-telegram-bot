@@ -4,7 +4,7 @@ specifiers:
   '@types/fluent-ffmpeg': ^2.1.20
   '@types/node': ^18.11.16
   axios: ^1.2.1
-  chatgpt: 3.2.4
+  chatgpt: 3.3.1
   dotenv: ^16.0.3
   fluent-ffmpeg: ^2.1.2
   microsoft-cognitiveservices-speech-sdk: ^1.24.1
@@ -18,7 +18,7 @@ specifiers:
 dependencies:
   '@types/fluent-ffmpeg': 2.1.20
   axios: 1.2.1
-  chatgpt: 3.2.4_puppeteer@19.4.1
+  chatgpt: 3.3.1_puppeteer@19.4.1
   dotenv: 16.0.3
   fluent-ffmpeg: 2.1.2
   microsoft-cognitiveservices-speech-sdk: 1.24.1
@@ -355,8 +355,8 @@ packages:
     resolution: {integrity: sha512-shx7oQ0Awen/BRIdkjkvz54PnEEI/EjwXDSIZp86/KKdbafHh1Df/RYGBhn4hbe2+uKC9FnT5UCEdyPz3ai9hQ==}
     dev: false
 
-  /chatgpt/3.2.4_puppeteer@19.4.1:
-    resolution: {integrity: sha512-tP8RUUH+Jl0lCFf08lOcFsgnrli1DMNZF76Zc6nIbPXDS0iHwVUI0n90qlIic6RTAMD0KPGahF/yaLrB/T/hOQ==}
+  /chatgpt/3.3.1_puppeteer@19.4.1:
+    resolution: {integrity: sha512-xb+Bpza2jgBoAoYgJ8/UjZ9EAuPYrQVOoTKqERHUUxoSK7wrMe3B+TIj3UDNKtxcAj6ZX8mcD57r3QH3cvNAUA==}
     engines: {node: '>=18'}
     peerDependencies:
       puppeteer: '*'
