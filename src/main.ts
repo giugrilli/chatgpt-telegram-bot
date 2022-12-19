@@ -169,7 +169,7 @@ bot.on('message', async (ctx) => {
   let contextArray = checkPreviousContext(ctx.message)
 
   const getRandomGif = await fetch(
-    "http://api.giphy.com/v1/gifs/random?tag=thinking&api_key=Al5wJ2bX1FQPosMW1BCgTNlho1j37MB8"
+    `http://api.giphy.com/v1/gifs/random?tag=thinking&api_key=${env.GIPHY}`
   );
 
   const removeMessages = async (message: any, animationmessage: any, loginMessage: any) => {

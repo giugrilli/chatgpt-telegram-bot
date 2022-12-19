@@ -9,7 +9,8 @@ const envSchema = z.object({
   OPENAI_PASSWORD: z.string().min(5),
   ALLOWED_IDS: z.string().min(0),
   AZURE_SPEECH_KEY: z.string().min(0),
-  AZURE_SPEECH_REGION: z.string().min(0)
+  AZURE_SPEECH_REGION: z.string().min(0),
+  GIPHY: z.string().min(0)
 });
 
 export const env = envSchema.parse(process.env);
