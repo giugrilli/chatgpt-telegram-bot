@@ -66,6 +66,8 @@ const checkPreviousContext = (message: any) => {
 
 const convertVoiceToText = async (ctx: any) => {
 
+  const message = await ctx.sendMessage('Converting...');
+
   const speechConfig = sdk.SpeechConfig.fromSubscription(env.AZURE_SPEECH_KEY, env.AZURE_SPEECH_REGION)
   const sourceConfig = sdk.AutoDetectSourceLanguageConfig.fromLanguages(['en-US', 'it-IT', 'fr-FR'])
 
@@ -136,6 +138,10 @@ const convertVoiceToText = async (ctx: any) => {
     }
   });
 
+  try{
+    ctx.telegram.deleteMessage(message.chat.id, message.message_id)
+  } catch {}
+
   return String(finalText)
 }
 
@@ -158,7 +164,7 @@ const doAllTheHandling = (ctx: any) => {
       // @ts-ignore
     } else if (ctx.message.voice) {
       text = await convertVoiceToText(ctx)
-      ctx.sendMessage(`ConvertedText: ${text}`);
+      ctx.sendMessage(`Converted: ${text}`);
     } else {
       return
     }
