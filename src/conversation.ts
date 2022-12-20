@@ -58,6 +58,7 @@ export const isLogged = async (id:string) => {
 export const resetThread = async(id:string) => {
   let api = memory.get(id)
   await api?.browser?.resetThread()
+  memory.set(id, {browser: api?.browser, latestResponse: undefined});
   return true
 }
 /**
