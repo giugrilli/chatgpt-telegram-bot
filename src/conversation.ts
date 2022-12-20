@@ -55,6 +55,11 @@ export const isLogged = async (id:string) => {
   return !!api
 }
 
+export const resetThread = async(id:string) => {
+  let api = memory.get(id)
+  await api?.browser?.resetThread()
+  return true
+}
 /**
  * create a new conversation
  */

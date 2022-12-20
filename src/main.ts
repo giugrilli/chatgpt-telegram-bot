@@ -1,7 +1,7 @@
 import { UNLOCK_THOUGHT_CONTROL } from './constants/command';
 import { Markup, Telegraf } from 'telegraf';
 import { env } from './utils/env';
-import { create, resetLogin, send, isLogged } from './conversation';
+import { create, resetLogin, send, isLogged, resetThread } from './conversation';
 import { editMessage } from './bot';
 import { UNLOCK_THOUGHT_CONTROL_MESSAGE } from './constants/message';
 import fs from 'fs'
@@ -163,6 +163,7 @@ const doAllTheHandling = (ctx: any) => {
     if (ctx.message.text) {
       // @ts-ignore
       text = ctx.message?.text.trim();
+    
       // @ts-ignore
     } else if (ctx.message.voice) {
       text = await convertVoiceToText(ctx)
@@ -175,6 +176,12 @@ const doAllTheHandling = (ctx: any) => {
       return
     }
   
+    if (text.toLowerCase() === 'reset'){
+      resetThread(id.toString())
+      ctx.sendMessage(`Thread Reset.`);
+      return
+    }
+
     let contextArray = checkPreviousContext(ctx.message)
   
     const getRandomGif = await fetch(
