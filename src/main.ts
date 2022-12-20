@@ -19,6 +19,10 @@ const bot = new Telegraf(env.TELEGRAM_BOT_TOKEN, {
   handlerTimeout: 3 * 60 * 1000,
 });
 
+const removeNonCharacters = (str:string) => {
+  return str.replace(/[^\u0020-\u007E\u00A0-\u00FF]/g, '');
+}
+
 // When a user starts a conversation with the bot
 bot.start(async (ctx) => {
   console.log('start', ctx.from);
@@ -142,7 +146,7 @@ const convertVoiceToText = async (ctx: any) => {
     ctx.telegram.deleteMessage(message.chat.id, message.message_id)
   } catch {}
 
-  finalText = finalText.replace(/\W+/g, " ")
+  finalText = removeNonCharacters(finalText)
 
   return String(finalText)
 }
