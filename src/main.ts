@@ -239,7 +239,7 @@ const doAllTheHandling = (ctx: any) => {
           await removeMessages(message, animationmessage, loginMessage)
           await ctx.sendMessage('❌ Something went wrong. Details: ' + e.message, removeKeyboard)
           if (
-            e.message.includes('error 403') || 
+            // e.message.includes('error 403') || 
             e.message.includes('error 429') || 
             e.message.includes('error 503') || 
             e.message.includes('error 524')){
