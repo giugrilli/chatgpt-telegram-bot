@@ -20,7 +20,7 @@ const bot = new Telegraf(env.TELEGRAM_BOT_TOKEN, {
 });
 
 const removeNonCharacters = (str:string) => {
-  return str.replace(/[^\u0020-\u007E\u00A0-\u00FF]/g, '');
+  return str.replace(/[^A-Za-zÀ-ÿ0-9\s]/g, '').toLowerCase();
 }
 
 // When a user starts a conversation with the bot
